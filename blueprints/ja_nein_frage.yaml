@@ -1,0 +1,257 @@
+blueprint:
+  name: Eine Ja/Nein-Frage stellen
+  description: |
+    Stellt eine einfache Ja/Nein-Frage. Unterstützt 50 verschiedene Möglichkeiten zur Bestätigung oder Ablehnung der Frage. Unterstützt Wiederholungen.
+  domain: script
+  author: JLo
+  homeassistant:
+    min_version: 2025.6.99
+  input:
+    question:
+      name: Frage
+      description: Die Frage, die vom Sprachassistenten gestellt wird.
+      selector:
+        text:
+
+    yes_section:
+      name: Bestätigung ('Ja', 'Gerne', ...)
+      description: Definiere, was passieren soll, wenn du die gestellte Frage positiv beantwortest.
+      icon: mdi:play
+      input:
+        yes_actions:
+          name: Aktionen
+          description: Aktionen, die ausgeführt werden sollen, wenn du die gestellte Frage positiv beantwortest.
+          default: []
+          selector:
+            action:
+        yes_answer:
+          name: Antwort
+          description: Antwort des Sprachassistenten, wenn du die gestellte Frage positiv beantwortest.
+          default: "Erledigt"
+          selector:
+            text:
+
+    no_section:
+      name: Ablehnung ('Nein', 'Negativ', ...)
+      description: Definiere, was passieren soll, wenn du die gestellte Frage negativ beantwortest.
+      icon: mdi:stop
+      input:
+        no_actions:
+          name: Aktionen
+          description: Aktionen, die ausgeführt werden sollen, wenn du die gestellte Frage negativ beantwortest.
+          default: []
+          selector:
+            action:
+        no_answer:
+          name: Antwort
+          description: Antwort des Sprachassistenten, wenn du die gestellte Frage negativ beantwortest.
+          default: "Aktion abgebrochen"
+          selector:
+            text:
+
+    other_section:
+      name: Andere Antworten
+      description: Definiere, was passieren soll, wenn die Antwort nicht verstanden wird.
+      icon: mdi:help
+      collapsed: true
+      input:
+        other_actions:
+          name: Aktionen
+          description: Aktionen, die ausgeführt werden sollen, wenn die Antwort nicht verstanden wird.
+          default: []
+          selector:
+            action:
+        other_answer:
+          name: Antwort
+          description: Antwort des Sprachassistenten, wenn die Antwort nicht verstanden wird.
+          default: "Entschuldigung, das habe ich nicht verstanden"
+          selector:
+            text:
+
+    repeat_section:
+      name: Erweiterte Parameter (Wiederholungen)
+      description: Definiere, wie oft die Frage gestellt werden soll, wenn die Antwort nicht verstanden wird.
+      icon: mdi:cog
+      collapsed: true
+      input:
+        number_of_retries:
+          name: Anzahl der Wiederholungen
+          description: Anzahl der Wiederholungen, wie oft die Frage erneut gestellt werden soll, wenn die Antwort nicht verstanden wird.
+          default: 0
+          selector:
+            number:
+              min: 0
+              max: 10
+              mode: slider
+
+fields:
+  voice_assistant:
+    name: Sprachassistent
+    description: Der Sprachassistent, der für dieses Gespräch verwendet wird.
+    required: true
+    selector:
+      entity:
+        multiple: false
+        filter:
+          - domain: assist_satellite
+  preannounce:
+    name: Vorankündigung
+    description: Spiele einen Ton ab, bevor die Frage gestellt wird.
+    required: true
+    default: true
+    selector:
+      boolean:
+
+sequence:
+  - variables:
+      number_of_retries: !input number_of_retries
+  - repeat:
+      sequence:
+        - action: assist_satellite.ask_question
+          continue_on_error: true
+          data:
+            question: !input question
+            preannounce: "{{preannounce}}"
+            entity_id: "{{voice_assistant}}"
+            answers:
+              - id: "yes"
+                sentences:
+                  - "Ja"
+                  - Gerne
+                  - Absolut
+                  - Nur zu
+                  - Ja, bitte
+                  - Selbstverständlich
+                  - Das ist gut
+                  - Mach es
+                  - Jop
+                  - Jup
+                  - Ok
+                  - Okay
+                  - Bestätigend
+                  - Ich stimme zu
+                  - Klingt gut
+                  - Du hast es
+                  - Definitiv
+                  - Auf jeden Fall
+                  - Warum nicht
+                  - In der Tat
+                  - Bestätigt
+                  - Lass es uns tun
+                  - Sicherlich
+                  - Richtig
+                  - Fein
+                  - Alles gut
+                  - So sei es
+                  - Ich stimme zu
+                  - Das stimmt
+                  - Ich bin einverstanden damit
+                  - Kein Problem
+                  - Leg los
+                  - Klingt gut
+                  - Ich bin dabei
+                  - Fortfahren
+                  - Es ist ein Ja
+                  - Ich bin dabei
+                  - Okay ja
+                  - Das ist ein Ja
+                  - Ja, mach nur
+                  - Das ist in Ordnung für mich
+                  - Positiv
+                  - Mach das
+                  - Es ist in Ordnung
+                  - Passt für mich
+                  - Ich bin damit einverstanden
+                  - Ja, mach es
+                  - Bitte fahre fort
+                  - Das ist, was ich will
+                  - Genau
+              - id: "no"
+                sentences:
+                  - "Nein"
+                  - Nö
+                  - Nicht
+                  - Bitte nicht
+                  - Nein danke
+                  - Ich glaube nicht
+                  - Jetzt nicht
+                  - Das ist ein Nein
+                  - Ich würde lieber nicht
+                  - Auf keinen Fall
+                  - Nicht wirklich
+                  - Abbrechen
+                  - Negativ
+                  - Stopp
+                  - Tu es nicht
+                  - Ich habe Nein gesagt
+                  - Nicht nötig
+                  - Schon gut
+                  - Nicht erforderlich
+                  - Nein, das ist nicht richtig
+                  - Ich bin anderer Meinung
+                  - Überspringen
+                  - Nicht fortfahren
+                  - Das will ich nicht
+                  - Nicht fortfahren
+                  - Lass es
+                  - Das ist falsch
+                  - Ich möchte lieber nicht
+                  - Nein danke
+                  - Das ist nicht in Ordnung für mich
+                  - Ich sage Nein
+                  - Lass uns nicht
+                  - Dieses Mal nicht
+                  - Ich bin nicht dabei
+                  - Bitte tu das nicht
+                  - Nichts unternehmen
+                  - Ich würde Nein sagen
+                  - Keine Aktion erforderlich
+                  - Ich bin dagegen
+                  - Ich würde es überspringen
+                  - Lieber nicht
+                  - Heute nicht
+                  - Ich bin mir nicht sicher, besser nicht
+                  - Das ist nicht das, was ich will
+                  - Das ist nicht nötig
+                  - Ich stimme nicht zu
+                  - Nein, das ist falsch
+                  - Lass uns das überspringen
+                  - Damit fühle ich mich nicht wohl
+            response_variable: response
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{response.id == 'yes'}}"
+              sequence:
+                - sequence: !input yes_actions
+                - action: assist_satellite.announce
+                  metadata: {}
+                  data:
+                    message: !input yes_answer
+                    preannounce: false
+                    target:
+                      entity_id: "{{voice_assistant}}"
+            - conditions:
+                - condition: template
+                  value_template: "{{response.id == 'no'}}"
+              sequence:
+                - sequence: !input no_actions
+                - action: assist_satellite.announce
+                  metadata: {}
+                  data:
+                    message: !input no_answer
+                    preannounce: false
+                    target:
+                      entity_id: "{{voice_assistant}}"
+          default:
+            - sequence: !input other_actions
+            - action: assist_satellite.announce
+              metadata: {}
+              data:
+                message: !input other_answer
+                preannounce: false
+                target:
+                  entity_id: "{{voice_assistant}}"
+      until:
+        - condition: template
+          value_template: "{{ (response is defined and response.id in ['yes','no']) or repeat.index > number_of_retries}}"
